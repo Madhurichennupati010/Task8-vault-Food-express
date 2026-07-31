@@ -1,35 +1,27 @@
 const mysql = require("mysql2");
+const loadVaultSecrets = require("./config/vault");
 
-require("dotenv").config();
+const vaultSecrets = loadVaultSecrets();
 
 const connection = mysql.createConnection({
-
     host: process.env.DB_HOST,
 
-    port: process.env.DB_PORT,
+    user: vaultSecrets.DB_USER || process.env.DB_USER,
 
-    user: process.env.DB_USER,
+    password: vaultSecrets.DB_PASSWORD || process.env.DB_PASSWORD,
 
-    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
 
-    database: process.env.DB_NAME
-
+    port: process.env.DB_PORT
 });
 
-connection.connect((err)=>{
+connection.connect((err) => {
+    if (err) {
+        console.error("Database connection failed:", err);
+        return;
+    }
 
-if(err){
-
-console.log("Database Connection Failed");
-
-console.log(err);
-
-return;
-
-}
-
-console.log("Connected to MySQL");
-
+    console.log("Connected to MySQL");
 });
 
 module.exports = connection;
