@@ -62,9 +62,9 @@ jobs:
             echo ""
             echo "========== Pull Latest Images =========="
 
-            docker pull madhu934652/food-express-vault-backend:latest
+            docker pull madhu934652/food-express-vault-backend:v1
 
-            docker pull madhu934652/food-express-vault-frontend:latest
+            docker pull madhu934652/food-express-vault-frontend:v1
 
             echo ""
             echo "========== Apply Kubernetes Manifests =========="
