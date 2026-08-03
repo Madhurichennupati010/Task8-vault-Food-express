@@ -1,6 +1,5 @@
 # 🍔 FoodExpress - End-to-End DevOps Project
 
--
 # 📖 Project Overview
 
 FoodExpress is a cloud-native food ordering application deployed using modern DevOps practices. This project demonstrates containerization, orchestration, scalability, and deployment automation using Docker, Kubernetes (Minikube), AWS EC2, GitHub Actions, and Docker Hub.
