@@ -21,6 +21,10 @@ spec:
         vault.hashicorp.com/agent-inject: "true"
         vault.hashicorp.com/role: "foodexpress"
 
+        vault.hashicorp.com/agent-requests-cpu: "50m"
+        vault.hashicorp.com/agent-requests-mem: "32Mi"
+
+
         # Secret path in Vault
         vault.hashicorp.com/agent-inject-secret-config: "secret/data/foodexpress"
 
