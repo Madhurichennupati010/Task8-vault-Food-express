@@ -1,0 +1,114 @@
+name: Task8 FoodExpress Vault Deployment
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy FoodExpress to AWS EC2
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Deploy to AWS EC2
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+
+            echo "================================================="
+            echo "   FoodExpress Task 8 Deployment Started"
+            echo "================================================="
+
+            # Navigate to project
+            cd ~/Task8-vault-Food-express
+
+            echo ""
+            echo "Updating Repository..."
+            git pull origin main
+
+            echo ""
+            echo "========== Docker =========="
+            docker --version
+
+            echo ""
+            echo "========== Minikube =========="
+            minikube status
+
+            echo ""
+            echo "========== Kubernetes Cluster =========="
+            kubectl get nodes
+
+            echo ""
+            echo "========== HashiCorp Vault =========="
+
+            echo "Checking Vault Pods..."
+            kubectl get pods -n foodexpress
+
+            echo ""
+            echo "Checking Vault Status..."
+            kubectl exec vault-0 -n foodexpress -- vault status
+
+            echo ""
+            echo "Checking FoodExpress Secrets..."
+            kubectl exec vault-0 -n foodexpress -- vault kv get secret/foodexpress
+
+            echo ""
+            echo "========== Pull Latest Images =========="
+
+            docker pull madhu934652/food-express-vault-backend:latest
+
+            docker pull madhu934652/food-express-vault-frontend:latest
+
+            echo ""
+            echo "========== Apply Kubernetes Manifests =========="
+
+            kubectl apply -f kubernetes/
+
+            echo ""
+            echo "========== Restart Deployments =========="
+
+            kubectl rollout restart deployment/backend -n foodexpress
+
+            kubectl rollout restart deployment/frontend -n foodexpress
+
+            echo ""
+            echo "========== Waiting for Backend =========="
+
+            kubectl rollout status deployment/backend -n foodexpress --timeout=300s
+
+            echo ""
+            echo "========== Waiting for Frontend =========="
+
+            kubectl rollout status deployment/frontend -n foodexpress --timeout=300s
+
+            echo ""
+            echo "========== Verify Vault Secret Injection =========="
+
+            BACKEND_POD=$(kubectl get pods -n foodexpress -l app=backend -o jsonpath='{.items[0].metadata.name}')
+
+            kubectl exec -n foodexpress $BACKEND_POD -- ls /vault/secrets
+
+            kubectl exec -n foodexpress $BACKEND_POD -- cat /vault/secrets/config
+
+            echo ""
+            echo "========== Deployment Status =========="
+
+            kubectl get pods -n foodexpress
+
+            kubectl get svc -n foodexpress
+
+            kubectl get ingress -n foodexpress
+
+            kubectl get hpa -n foodexpress
+
+            echo ""
+            echo "================================================="
+            echo " FoodExpress Task 8 Foodexpress Vault Deployment Completed"
+            echo "================================================="
