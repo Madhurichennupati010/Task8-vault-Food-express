@@ -1,6 +1,5 @@
 # 🍔 FoodExpress - End-to-End DevOps Project
 
-.
 -
 # 📖 Project Overview
 
