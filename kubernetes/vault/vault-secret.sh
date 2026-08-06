@@ -1,8 +1,6 @@
 #!/bin/sh
 
 vault kv put secret/foodexpress \
-DB_HOST=mysql-service \
-DB_NAME=foodexpress \
-DB_USER=root \
-DB_PASSWORD=password123 \
-API_KEY=FoodExpressAPI123
+DB_USER=$DB_USER \
+DB_PASSWORD=$DB_PASSWORD \
+DB_NAME=$DB_NAME
