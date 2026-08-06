@@ -1,5 +1,4 @@
-<<<<<<< HEAD
-<<<<<<< HEAD .
+
 # 🍔 FoodExpress - End-to-End DevOps Project..
 =======
 # Why do we use HashiCorp Vault?
