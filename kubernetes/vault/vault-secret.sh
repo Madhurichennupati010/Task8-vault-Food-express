@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 vault kv put secret/foodexpress \
 DB_HOST=mysql-service \
