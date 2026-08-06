@@ -1,241 +1,333 @@
+<<<<<<< HEAD
 <<<<<<< HEAD .
 # 🍔 FoodExpress - End-to-End DevOps Project..
+=======
+# Why do we use HashiCorp Vault?
+>>>>>>> fcdcff8 (updated readme and vault role.sh)
 
-# 📖 Project Overview
+HashiCorp Vault is used to securely store, manage, and control access to sensitive information (secrets) such as:
 
-FoodExpress is a cloud-native food ordering application deployed using modern DevOps practices. This project demonstrates containerization, orchestration, scalability, and deployment automation using Docker, Kubernetes (Minikube), AWS EC2, GitHub Actions, and Docker Hub.
+Database username and password
+API keys
+AWS Access Keys
+SSH keys
+TLS certificates
+Tokens
 
-This project showcases an end-to-end DevOps workflow from application containerization to Kubernetes deployment with autoscaling.
+Instead of storing these secrets inside application code or Kubernetes manifests, Vault stores them securely and provides them to applications only when needed.
+
+Without Vault
+
+Secrets might be stored in:
+
+Source code
+.env files
+Kubernetes Secrets
+
+These methods are less secure because Kubernetes Secrets are only Base64 encoded, not encrypted by default.
+
+Example:
+
+env:
+- name: DB_PASSWORD
+  value: password123
+
+Anyone with access to the manifest can see the password.
+
+With Vault
+
+The application never contains the password.
+
+The backend pod requests the secret from Vault using its Kubernetes Service Account.
+
+Vault verifies the pod's identity and injects the secret into the pod automatically.
+
+Example:
+
+Vault
+   ↓
+DB_PASSWORD=password123
+   ↓
+Vault Agent
+   ↓
+Backend Pod
+
+No password is stored in GitHub or Kubernetes manifests.
 
 ---
 
-# 🎯 Objectives
+# Task 8 - FoodExpress Kubernetes Deployment with HashiCorp Vault
 
-- Containerize Frontend and Backend using Docker
-- Push Docker Images to Docker Hub
-- Deploy Application on Kubernetes
-- Deploy MySQL using Persistent Storage
-- Secure sensitive information using Kubernetes Secrets
-- Manage configuration using ConfigMaps
-- Implement Horizontal Pod Autoscaler
-- Expose application using Kubernetes Services
-- Deploy on AWS EC2 using Minikube
-- Automate deployment using GitHub Actions
+## Project Overview
+
+This project demonstrates how to securely deploy the FoodExpress microservices application on Kubernetes by integrating HashiCorp Vault for secrets management.
+
+Instead of storing sensitive information such as database credentials inside Kubernetes Secrets, the application dynamically retrieves them from Vault using the Vault Agent Injector.
 
 ---
 
-# 🏗️ Project Architecture
+# Architecture
+
+                +----------------------+
+                |      GitHub          |
+                +----------+-----------+
+                           |
+                           |
+                     Docker Images
+                           |
+                +----------v-----------+
+                |    Docker Hub        |
+                +----------+-----------+
+                           |
+                           |
+                  Kubernetes Cluster
+                           |
+        ---------------------------------------
+        |                 |                  |
+        |                 |                  |
+   Frontend          Backend           MySQL
+        |                 |
+        |                 |
+        |           Vault Agent Sidecar
+        |                 |
+        -------------------
+                 |
+          HashiCorp Vault
+                 |
+          Secret/Data Store
+
+---
+
+# Technologies Used
+
+- Docker
+- Kubernetes
+- Minikube
+- HashiCorp Vault
+- Helm
+- Docker Hub
+- GitHub
+- Node.js
+- MySQL
+
+---
+
+# Project Structure
 
 ```
-                    User
-                      │
-                      ▼
-             Frontend Service
-                      │
-                      ▼
-            Backend Service (API)
-                      │
-                      ▼
-               MySQL Database
-                      │
-        Persistent Volume (PV)
-                      │
-Persistent Volume Claim (PVC)
-
-        Kubernetes Cluster
-             (Minikube)
-
-Hosted on AWS EC2
-```
-
----
-
-# 🛠️ Technology Stack
-
-| Technology | Purpose |
-|------------|----------|
-| AWS EC2 | Cloud Infrastructure |
-| Ubuntu | Operating System |
-| Docker | Containerization |
-| Docker Hub | Image Registry |
-| Kubernetes | Container Orchestration |
-| Minikube | Local Kubernetes Cluster |
-| GitHub Actions | CI/CD Pipeline |
-| Node.js | Backend |
-| React | Frontend |
-| MySQL | Database |
-
----
-
-# 📂 Project Structure
-
-```
-FoodExpress
+Task8-vault-Food-express
 │
 ├── backend/
-│   ├── Dockerfile
-│   ├── package.json
-│   └── server.js
-│
 ├── frontend/
-│   ├── Dockerfile
-│   └── React Application
+├── database/
 │
 ├── kubernetes/
 │   ├── namespace.yaml
-│   ├── config.yaml
-│   ├── secret.yaml
+│   ├── configmap.yaml
 │   ├── mysql-secret.yaml
 │   ├── mysql-pv.yaml
 │   ├── mysql-pvc.yaml
 │   ├── mysql-deployment.yaml
+│   ├── mysql-service.yaml
 │   ├── backend-deployment.yaml
 │   ├── backend-service.yaml
 │   ├── frontend-deployment.yaml
 │   ├── frontend-service.yaml
 │   ├── ingress.yaml
-│   └── hpa.yaml
+│   ├── backend-hpa.yaml
+│   └── vault/
+│       ├── vault-auth.sh
+│       ├── vault-policy.hcl
+│       ├── vault-role.sh
+│       └── vault-secret.sh
 │
-└── .github/
-    └── workflows/
-        └── deploy.yml
+└── README.md
 ```
 
 ---
 
-# ⚙️ Docker Images
+# Prerequisites
 
-Backend
+Install the following:
 
-```
-madhu934652/food-express-backend:latest
-```
-
-Frontend
-
-```
-madhu934652/food-express-frontend:latest
-```
-
----
-
-# 🚀 Deployment Workflow
-
-```
-GitHub
-
-↓
-
-GitHub Actions
-
-↓
-
-Docker Build
-
-↓
-
-Docker Hub
-
-↓
-
-AWS EC2
-
-↓
-
-Minikube
-
-↓
-
-Kubernetes
-
-↓
-
-FoodExpress Application
-```
-
----
-
-# ☁️ AWS Setup
-
-Launch Ubuntu EC2
-
-Install
-=======
-# FoodExpress with HashiCorp Vault on Kubernetes
-
-## Prerequisites
->>>>>>> 6d5b78a (updated vault-auth.sh)
-
-- Docker
+- Docker Desktop
 - Kubernetes (Minikube)
 - kubectl
 - Helm
-- Vault CLI
 - Git
+- Vault CLI
 
----
+Verify installation
 
-# Clone Repository
-
-```bash
-git clone https://github.com/Madhurichennupati010/Task8-vault-Food-express.git
-cd Task8-vault-Food-express
+```
+docker --version
+kubectl version --client
+helm version
+minikube version
+vault version
 ```
 
 ---
 
-# Start Minikube
+# Step 1 - Start Minikube
 
-```bash
+```
 minikube start --driver=docker
-```
-
-Verify Cluster
-
-```bash
-kubectl get nodes
-kubectl cluster-info
-```
-
----
-
-# Enable Minikube Addons
-
-```bash
-minikube addons enable ingress
-minikube addons enable metrics-server
-minikube addons enable storage-provisioner
-minikube addons enable default-storageclass
-```
-
----
-
-# Create Namespace
-
-```bash
-kubectl apply -f namespace.yaml
 ```
 
 Verify
 
-```bash
+```
+kubectl get nodes
+```
+
+Expected
+
+```
+control-plane Ready
+```
+
+---
+
+# Step 2 - Enable Required Addons
+
+```
+minikube addons enable ingress
+
+minikube addons enable metrics-server
+
+minikube addons enable storage-provisioner
+
+minikube addons enable default-storageclass
+```
+
+Verify
+
+```
+minikube addons list
+```
+
+---
+
+# Step 3 - Create Namespace
+
+```
+kubectl apply -f kubernetes/namespace.yaml
+```
+
+Verify
+
+```
 kubectl get ns
 ```
 
 ---
 
-# Install Vault using Helm
+# Step 4 - Deploy MySQL
 
-Add Repository
+Apply
 
-```bash
+```
+kubectl apply -f kubernetes/mysql-pv.yaml
+
+kubectl apply -f kubernetes/mysql-pvc.yaml
+
+kubectl apply -f kubernetes/mysql-secret.yaml
+
+kubectl apply -f kubernetes/mysql-deployment.yaml
+
+kubectl apply -f kubernetes/mysql-service.yaml
+```
+
+Verify
+
+```
+kubectl get pods -n foodexpress
+
+kubectl get pvc -n foodexpress
+
+kubectl get svc -n foodexpress
+```
+
+---
+
+# Step 5 - Deploy Backend
+
+```
+kubectl apply -f kubernetes/configmap.yaml
+
+kubectl apply -f kubernetes/backend-deployment.yaml
+
+kubectl apply -f kubernetes/backend-service.yaml
+```
+
+Verify
+
+```
+kubectl get deployment -n foodexpress
+
+kubectl get pods -n foodexpress
+```
+
+---
+
+# Step 6 - Deploy Frontend
+
+```
+kubectl apply -f kubernetes/frontend-deployment.yaml
+
+kubectl apply -f kubernetes/frontend-service.yaml
+```
+
+Verify
+
+```
+kubectl get pods -n foodexpress
+```
+
+---
+
+# Step 7 - Configure Ingress
+
+```
+kubectl apply -f kubernetes/ingress.yaml
+```
+
+Verify
+
+```
+kubectl get ingress -n foodexpress
+```
+
+---
+
+# Step 8 - Configure HPA
+
+```
+kubectl apply -f kubernetes/backend-hpa.yaml
+```
+
+Verify
+
+```
+kubectl get hpa -n foodexpress
+```
+
+---
+
+# Step 9 - Install HashiCorp Vault
+
+Add Helm Repository
+
+```
 helm repo add hashicorp https://helm.releases.hashicorp.com
+
 helm repo update
 ```
 
 Install Vault
 
-```bash
+```
 helm install vault hashicorp/vault \
 --namespace foodexpress \
 --set "server.dev.enabled=true"
@@ -243,358 +335,357 @@ helm install vault hashicorp/vault \
 
 Verify
 
-```bash
+```
 kubectl get pods -n foodexpress
 ```
 
----
+Expected
 
-# Initialize Vault (Skip in Dev Mode)
-
-```bash
-kubectl exec -it vault-0 -n foodexpress -- vault operator init
+```
+vault-0 Running
 ```
 
 ---
 
-# Unseal Vault
+# Step 10 - Initialize Vault
 
-```bash
-kubectl exec -it vault-0 -n foodexpress -- vault operator unseal
+Open Vault Pod
+
 ```
-
-Repeat with three unseal keys.
-
----
-
-# Login to Vault
-
-```bash
 kubectl exec -it vault-0 -n foodexpress -- sh
 ```
 
-```bash
-vault login
-```
+Login
 
-Paste Root Token.
+```
+vault login root
+```
 
 ---
 
-# Enable KV Secret Engine
+# Step 11 - Enable KV Secret Engine
 
-```bash
+```
 vault secrets enable -path=secret kv-v2
-```
-
----
-
-# Create Secret
-
-```bash
-vault kv put secret/foodexpress \
-DB_USER=root \
-DB_PASSWORD=root123 \
-API_KEY=myapikey
 ```
 
 Verify
 
-```bash
+```
+vault secrets list
+```
+
+---
+
+# Step 12 - Create Secrets
+
+```
+vault kv put secret/foodexpress \
+DB_HOST=mysql \
+DB_USER=root \
+DB_PASSWORD=password \
+DB_NAME=foodexpress
+```
+
+Verify
+
+```
 vault kv get secret/foodexpress
 ```
 
 ---
 
-# Enable Kubernetes Authentication
+# Step 13 - Enable Kubernetes Authentication
 
-```bash
+```
 vault auth enable kubernetes
 ```
 
----
+Verify
 
-# Create Token
-
-```bash
-TOKEN=$(kubectl create token vault -n foodexpress)
+```
+vault auth list
 ```
 
 ---
 
-# Create CA Certificate
+# Step 14 - Configure Kubernetes Authentication
 
-```bash
-kubectl config view --raw --minify --flatten \
--o jsonpath='{.clusters[].cluster.certificate-authority-data}' \
-| base64 -d > ca.crt
+Run
+
+```
+./vault-auth.sh
+```
+
+This script configures:
+
+- Kubernetes Host
+- CA Certificate
+- Service Account JWT
+
+Verify
+
+```
+vault read auth/kubernetes/config
 ```
 
 ---
 
-# Copy CA Certificate into Vault
+# Step 15 - Create Vault Policy
 
-```bash
-kubectl cp ca.crt foodexpress/vault-0:/tmp/ca.crt
+Run
+
+```
+vault policy write foodexpress vault-policy.hcl
+```
+
+Verify
+
+```
+vault policy list
 ```
 
 ---
 
-# Configure Kubernetes Authentication
+# Step 16 - Create Vault Role
 
-```bash
-kubectl exec -it vault-0 -n foodexpress -- sh
+Run
+
+```
+./vault-role.sh
 ```
 
-```bash
-vault write auth/kubernetes/config \
-token_reviewer_jwt="$TOKEN" \
-kubernetes_host="https://172.30.1.2:6443" \
-kubernetes_ca_cert=@/tmp/ca.crt
+Verify
+
 ```
-
----
-
-# Create Vault Policy
-
-```bash
-cat <<EOF > foodexpress-policy.hcl
-path "secret/data/foodexpress" {
-  capabilities = ["read"]
-}
-EOF
-```
-
-Apply Policy
-
-```bash
-vault policy write foodexpress foodexpress-policy.hcl
+vault read auth/kubernetes/role/foodexpress
 ```
 
 ---
 
-# Create Vault Role
+# Step 17 - Configure Backend Deployment
 
-```bash
-vault write auth/kubernetes/role/foodexpress \
-bound_service_account_names=backend-sa \
-bound_service_account_namespaces=foodexpress \
-policies=foodexpress \
-ttl=24h
+The backend deployment contains Vault annotations.
+
+Example
+
+```
+vault.hashicorp.com/agent-inject: "true"
+
+vault.hashicorp.com/role: "foodexpress"
+
+vault.hashicorp.com/agent-inject-secret-config: "secret/data/foodexpress"
+```
+
+Also include
+
+```
+serviceAccountName: backend-sa
 ```
 
 ---
 
-# Deploy Application
+# Step 18 - Restart Backend
 
-```bash
-kubectl apply -f .
+```
+kubectl rollout restart deployment backend -n foodexpress
 ```
 
-Or
+Verify
 
-```bash
-kubectl apply -f kubernetes/
+```
+kubectl get pods -n foodexpress
+```
+
+You should see
+
+```
+backend
+
+vault-agent-init
+
+vault-agent
 ```
 
 ---
 
-# Verify Resources
+# Step 19 - Verify Secrets
+
+```
+kubectl exec -it backend-pod-name -n foodexpress -- sh
+```
+
+Check
+
+```
+cat /vault/secrets/config
+```
+
+You should see
+
+```
+DB_HOST=mysql
+
+DB_USER=root
+
+DB_PASSWORD=password
+
+DB_NAME=foodexpress
+```
+
+---
+
+# Step 20 - Verify Application
+
+```
+kubectl get all -n foodexpress
+```
+
+Access application
+
+```
+minikube service frontend-service -n foodexpress
+```
+
+---
+
+# Verification Commands
 
 Pods
 
-```bash
+```
 kubectl get pods -n foodexpress
 ```
 
 Services
 
-```bash
+```
 kubectl get svc -n foodexpress
 ```
 
 Deployments
 
-```bash
+```
 kubectl get deployments -n foodexpress
-```
-
-ReplicaSets
-
-```bash
-kubectl get rs -n foodexpress
-```
-
-ConfigMaps
-
-```bash
-kubectl get configmap -n foodexpress
-```
-
-Secrets
-
-```bash
-kubectl get secrets -n foodexpress
 ```
 
 Ingress
 
-```bash
+```
 kubectl get ingress -n foodexpress
+```
+
+HPA
+
+```
+kubectl get hpa -n foodexpress
 ```
 
 PVC
 
-```bash
+```
 kubectl get pvc -n foodexpress
 ```
 
 PV
 
-```bash
+```
 kubectl get pv
 ```
 
-HPA
+Vault
 
-```bash
-kubectl get hpa -n foodexpress
 ```
-
----
-
-# Verify Vault
-
-Vault Status
-
-```bash
 kubectl exec -it vault-0 -n foodexpress -- vault status
 ```
 
-Vault Auth Methods
-
-```bash
-kubectl exec -it vault-0 -n foodexpress -- vault auth list
-```
-
-Vault Role
-
-```bash
-kubectl exec -it vault-0 -n foodexpress -- \
-vault read auth/kubernetes/role/foodexpress
-```
-
-Vault Secret
-
-```bash
-kubectl exec -it vault-0 -n foodexpress -- \
-vault kv get secret/foodexpress
-```
-
 ---
 
-# Check Pod Logs
+# Troubleshooting
 
-Backend
+## Backend Pod Pending
 
-```bash
-kubectl logs -f deployment/backend -n foodexpress
 ```
-
-Vault Agent
-
-```bash
-kubectl logs <pod-name> -c vault-agent -n foodexpress
-```
-
-Vault Init Container
-
-```bash
-kubectl logs <pod-name> -c vault-agent-init -n foodexpress
-```
-
----
-
-# Describe Resources
-
-```bash
 kubectl describe pod <pod-name> -n foodexpress
 ```
 
-```bash
-kubectl describe deployment backend -n foodexpress
-```
+---
 
-```bash
-kubectl describe service backend -n foodexpress
+## Vault Authentication Failed
+
+Check
+
+```
+vault read auth/kubernetes/config
 ```
 
 ---
 
-# Restart Deployment
+## Secrets Not Injected
 
-```bash
-kubectl rollout restart deployment/backend -n foodexpress
+Verify annotations
+
 ```
-
-Check Rollout
-
-```bash
-kubectl rollout status deployment/backend -n foodexpress
+kubectl describe pod backend-pod -n foodexpress
 ```
 
 ---
 
-# Scale Deployment
+## HPA Metrics Error
 
-```bash
-kubectl scale deployment backend --replicas=5 -n foodexpress
+Enable Metrics Server
+
+```
+minikube addons enable metrics-server
 ```
 
 ---
 
-# Delete Everything
+## Restart Deployments
 
-```bash
+```
+kubectl rollout restart deployment backend -n foodexpress
+
+kubectl rollout restart deployment frontend -n foodexpress
+```
+
+---
+
+# Cleanup
+
+Delete Application
+
+```
 kubectl delete namespace foodexpress
 ```
 
-Or
+Delete Minikube
 
-```bash
-kubectl delete -f kubernetes/
+```
+minikube delete
 ```
 
 ---
 
-# Useful Commands
+# Learning Outcomes
 
-Watch Pods
+- Deploy applications on Kubernetes
+- Configure Persistent Volumes
+- Use ConfigMaps
+- Configure Services
+- Configure Ingress
+- Configure Horizontal Pod Autoscaler
+- Install HashiCorp Vault using Helm
+- Configure Kubernetes Authentication
+- Create Vault Policies and Roles
+- Store secrets securely in Vault
+- Inject secrets dynamically using Vault Agent Injector
+- Deploy secure cloud-native applications
 
-```bash
-kubectl get pods -n foodexpress -w
-```
+---
 
-Execute Inside Backend Pod
+# Author
 
-```bash
-kubectl exec -it <backend-pod> -n foodexpress -- sh
-```
+Madhuri Chennupati
 
-Execute Inside Vault
-
-```bash
-kubectl exec -it vault-0 -n foodexpress -- sh
-```
-
-View Events
-
-```bash
-kubectl get events -n foodexpress --sort-by=.metadata.creationTimestamp
-```
-
-Check Cluster
-
-```bash
-kubectl get all -n foodexpress
-```
+AWS DevOps Engineer
